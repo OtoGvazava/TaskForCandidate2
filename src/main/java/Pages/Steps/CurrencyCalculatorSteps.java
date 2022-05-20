@@ -1,12 +1,12 @@
-package Pages;
+package Pages.Steps;
 
 import Common.Browser;
 import Common.Configuration;
+import Pages.Maps.CurrencyCalculatorMap;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
@@ -15,27 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class CurrencyConversionCalculatorPage extends MainLayout {
+public class CurrencyCalculatorSteps extends MainLayoutSteps {
+    private final CurrencyCalculatorMap map;
     private final String PageURL;
 
-    @FindBy(xpath = "/html/body/main/article/section[3]/div")
-    private WebElement CalculatorContainer;
-
-    @FindBy(xpath = "//*[@id=\"currency-exchange-app\"]/div/div/div[2]/table/tbody")
-    private WebElement CalculatorTableBody;
-
-    @FindBy(xpath = "//*[@id=\"currency-exchange-app\"]/div/div/div[2]/div[1]/form/div[1]/input")
-    private WebElement SellInput;
-
-    @FindBy(xpath = "//*[@id=\"currency-exchange-app\"]/div/div/div[2]/div[1]/form/div[3]/input")
-    private WebElement BuyInput;
-
-    @FindBy(xpath = "//*[@id=\"currency-exchange-app\"]/div/div/div[2]/div[1]/form/div[1]/div/div[1]/span/span[2]/span")
-    private WebElement SellCurrency;
-
-    public CurrencyConversionCalculatorPage() {
+    public CurrencyCalculatorSteps() {
+        map = new CurrencyCalculatorMap();
         PageURL = "v2/en-LT/fees/currency-conversion-calculator#/";
-        PageFactory.initElements(Browser.Driver, this);
     }
 
     public void navigate() {
@@ -43,37 +29,52 @@ public class CurrencyConversionCalculatorPage extends MainLayout {
     }
 
     public void scrollToCalculator() {
-        Browser.JS.executeScript("arguments[0].scrollIntoView();", CalculatorContainer);
+        Browser.JS.executeScript("arguments[0].scrollIntoView();", map.CalculatorContainer);
     }
 
     public void waitCalculatorTableBodyVisible () {
-        Browser.Wait.until(ExpectedConditions.visibilityOf(CalculatorTableBody));
+        Browser.Wait.until(ExpectedConditions.visibilityOf(map.CalculatorTableBody));
     }
 
     public void setSellInput (double sellAmount) {
-        SellInput.clear();
-        SellInput.sendKeys(Double.toString(sellAmount));
+        map.SellInput.clear();
+        map.SellInput.sendKeys(Double.toString(sellAmount));
     }
 
     public String getSellInput () {
-        return SellInput.getAttribute("value");
+        return map.SellInput.getAttribute("value");
     }
 
     public void setBuyInput (double sellAmount) {
-        BuyInput.clear();
-        BuyInput.sendKeys(Double.toString(sellAmount));
+        map.BuyInput.clear();
+        map.BuyInput.sendKeys(Double.toString(sellAmount));
     }
 
     public String getBuyInput () {
-        return BuyInput.getAttribute("value");
+        return map.BuyInput.getAttribute("value");
+    }
+
+    public void checkBuyInputIsEmpty() {
+        String buyInputValue = this.getBuyInput();
+        Assert.assertEquals(buyInputValue, "", "When input Sell amount, Buy input doesn't empty!");
+    }
+
+    public void checkSellInputIsEmpty() {
+        String sellInputValue = this.getSellInput();
+        Assert.assertEquals(sellInputValue, "", "When input Buy amount, Sell input doesn't empty!");
     }
 
     public String getSellCurrency () {
-        return SellCurrency.getText();
+        return map.SellCurrency.getText();
+    }
+
+    public void checkSellCurrency(String currency) {
+        String SellCurrency = this.getSellCurrency();
+        Assert.assertEquals(currency, SellCurrency);
     }
 
     public HashMap<String, String> getCurrencyOfficialRates () {
-        List<WebElement> currencyRows = CalculatorTableBody.findElements(By.tagName("tr"));
+        List<WebElement> currencyRows = map.CalculatorTableBody.findElements(By.tagName("tr"));
         HashMap<String, String> currencyRates = new HashMap<>();
         for (WebElement row : currencyRows) {
             String currency = row.findElement(By.xpath("td[1]")).getText();
@@ -91,7 +92,7 @@ public class CurrencyConversionCalculatorPage extends MainLayout {
 
     public void checkDifferenceAmount() {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        List<WebElement> currencyRows = CalculatorTableBody.findElements(By.tagName("tr"));
+        List<WebElement> currencyRows = map.CalculatorTableBody.findElements(By.tagName("tr"));
         for (WebElement row : currencyRows) {
             Double payseraAmount = Double.parseDouble(row.findElement(By.xpath("td[4]/span/span/span")).getText()
                     .replace(",",""));
@@ -115,5 +116,23 @@ public class CurrencyConversionCalculatorPage extends MainLayout {
                 }
             });
         }
+    }
+
+    public void changeSellCurrency(String currency) throws InterruptedException {
+        map.SellCurrency.click();
+        String countryXPATH = String.format("//*[normalize-space()='%s']", currency);
+        Browser.Wait.until(ExpectedConditions.visibilityOf(map.SellCurrencyMenu));
+        map.SellCurrencyMenu.findElement(By.xpath(countryXPATH)).click();
+        map.Filter.click();
+        Thread.sleep(1000);
+    }
+
+    public void clearFilter() throws InterruptedException {
+        map.ClearFilter.click();
+        Thread.sleep(1000);
+    }
+
+    public void checkSellAmount(String amount) {
+        Assert.assertEquals(this.getSellInput(), amount);
     }
 }
