@@ -1,3 +1,3 @@
 # TaskForCandidate2
 
-https://user-images.githubusercontent.com/44722001/169599173-88f559a3-ce19-45a3-a7f4-d137948d796f.mp4
+https://user-images.githubusercontent.com/44722001/169599330-9cd9e330-f6b5-41b1-af5d-06f1b0c72338.mp4
