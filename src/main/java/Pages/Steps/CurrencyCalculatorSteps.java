@@ -135,4 +135,8 @@ public class CurrencyCalculatorSteps extends MainLayoutSteps {
     public void checkSellAmount(String amount) {
         Assert.assertEquals(this.getSellInput(), amount);
     }
+
+    public void checkBuyAmount(String amount) {
+        Assert.assertEquals(this.getBuyInput(), amount);
+    }
 }

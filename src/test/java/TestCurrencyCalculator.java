@@ -80,18 +80,17 @@ public class TestCurrencyCalculator {
 
     @Test(priority = 5)
     public void check_clear_filter() throws InterruptedException {
-        String currency = "PLN";
         String selectedCountryCurrency = "BGN";
+        String defaultSellAmount = "100";
         steps.scrollToCalculator();
-        steps.waitCalculatorTableBodyVisible();
-        steps.changeSellCurrency(currency);
         steps.waitCalculatorTableBodyVisible();
         HashMap<String, String> officialRatesBeforeCurrencyChange = steps.getCurrencyOfficialRates();
         steps.clearFilter();
         steps.waitCalculatorTableBodyVisible();
         HashMap<String, String> officialRatesAfterCurrencyChange = steps.getCurrencyOfficialRates();
         steps.checkSellCurrency(selectedCountryCurrency);
-        steps.checkSellAmount("100");
+        steps.checkSellAmount(defaultSellAmount);
+        steps.checkBuyAmount("");
         steps.assertIsNotEqualHashMapData(officialRatesBeforeCurrencyChange, officialRatesAfterCurrencyChange);
     }
 
